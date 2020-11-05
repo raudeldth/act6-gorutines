@@ -8,9 +8,9 @@ import (
 
 var flag bool = false
 
-func eliminaProceso(prcs *[]proceso.Proceso, s uint64) []proceso.Proceso {
-    _, pos := isIn(prcs, s)
-    return append(prcs[:pos], prcs[pos+1:])
+func eliminaProceso(prcs *[]proceso.Proceso, s int) {
+    (*prcs)[s].Stop()
+    *prcs = append((*prcs)[:s], (*prcs)[s+1:]...)
 }
 
 func isIn(prcs *[]proceso.Proceso, id uint64) (bool, int) {
@@ -33,26 +33,8 @@ func ProcesoF(id uint64) {
 }
 
 func main() {
-    /*pro := proceso.Proceso{uint64(0), true}
-    pro1 := proceso.Proceso{uint64(1), true}
-    pros := []proceso.Proceso{}
-    pros = append(pros, pro)
-    pros = append(pros, pro1)
-    c1 := make(chan uint64)
-
-    for _, v := range pros {
-        go v.Start(c1)
-        go ProcesoF(v.Id)
-        fmt.Println("FOR")
-    }*/
-
-
-
-
-
     var opc int
     prcs := []proceso.Proceso{}
-
 
     for {
         fmt.Println("1. Agregar Proceso")
@@ -69,8 +51,8 @@ func main() {
             if cond, _ := isIn(&prcs, prc); cond {
                 fmt.Println("\tId en uso\n")
             } else {
-                pro := proceso.Proceso{prc, true}
                 c := make(chan uint64)
+                pro := proceso.Proceso{prc, true}
                 go pro.Start(c)
                 go ProcesoF(pro.Id)
                 prcs = append(prcs, pro)
@@ -81,17 +63,19 @@ func main() {
             fmt.Scanln(&input)
             flag = false
         case 3:
+            //FIXME
             var id uint64
             fmt.Print("Ingrese ID: ")
             fmt.Scan(&id)
-            prcs = eliminaProceso(&prcs, id)
+            _, v := isIn(&prcs, id)
+            eliminaProceso(&prcs, v)
+            //FIXME
         }
 
         if opc == 4 {
             break
         }
     }
-
 
     var input string
     fmt.Scanln(&input)

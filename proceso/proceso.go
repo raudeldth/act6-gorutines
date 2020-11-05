@@ -1,12 +1,13 @@
 package proceso
 
+import "fmt"
 type Proceso struct {
     Id uint64
     Activo bool
 }
 
 func (p * Proceso) Start(c chan uint64) {
-    for {
+    for p.Activo {
         c <- p.Id
     }
 }
