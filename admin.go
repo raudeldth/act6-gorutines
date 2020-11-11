@@ -21,16 +21,6 @@ func isIn(prcs *[]proceso.Proceso, id uint64) (bool, int) {
     }
     return false, 0
 }
-func ProcesoF(id uint64) {
-    i := uint64(0);
-    for {
-        if flag {
-            fmt.Printf("id %d: %d\n", id, i)
-        }
-        i = i + 1
-        time.Sleep(time.Millisecond * 500)
-    }
-}
 
 func main() {
     var opc int
@@ -51,32 +41,30 @@ func main() {
             if cond, _ := isIn(&prcs, prc); cond {
                 fmt.Println("\tId en uso\n")
             } else {
-                c := make(chan uint64)
-                pro := proceso.Proceso{prc, true}
-                go pro.Start(c)
-                go ProcesoF(pro.Id)
+                c := make(chan bool)
+                pro := proceso.Proceso{prc, 0, true, false, c}
+                go pro.Start()
                 prcs = append(prcs, pro)
             }
         case 2:
-            flag = true
             var input string
+            for _, p := range prcs {
+                p.ActivoC <- true
+            }
             fmt.Scanln(&input)
-            flag = false
+            for _, p := range prcs {
+                p.ActivoC <- false
+            }
         case 3:
-            //FIXME
             var id uint64
             fmt.Print("Ingrese ID: ")
             fmt.Scan(&id)
             _, v := isIn(&prcs, id)
             eliminaProceso(&prcs, v)
-            //FIXME
         }
 
         if opc == 4 {
             break
         }
     }
-
-    var input string
-    fmt.Scanln(&input)
 }
